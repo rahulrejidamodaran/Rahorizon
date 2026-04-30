@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import os
 import uuid
 from werkzeug.utils import secure_filename
-from utils.inference import run_inference
+from utils.inference import run_inference, check_solar
 
 app = Flask(__name__)
 
@@ -61,6 +61,28 @@ def predict():
 
     if not os.path.exists(image_path):
         return "Image not found"
+    
+
+    solar_status, prob = check_solar(image_path)
+    
+
+    if solar_status == "Not Solar":
+        return render_template(
+        "starter-page.html",
+        image_name=image_name,
+        prob=prob,
+        error_message="❌ Uploaded image is NOT a solar panel"
+    )
+
+    if solar_status == "Uncertain":
+        return render_template(
+        "starter-page.html",
+        image_name=image_name,
+        prob=prob,
+        error_message="⚠️ Unable to confirm if this is a solar panel"
+    )
+
+    
 
     # ✅ main inference
     power, area_ratio, defect_code, defects = run_inference(image_path)
@@ -82,7 +104,9 @@ def predict():
         effective_voltage=round(effective_voltage, 2),
 
         defect_name=defect_name,
-        total_area=round(area_percent, 2)
+        total_area=round(area_percent, 2),
+        solar_status=solar_status,
+        prob=prob
     )
 
 

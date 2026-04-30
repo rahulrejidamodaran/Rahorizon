@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# Project Name : Rahorizon
-=======
-# Project Name: Rahorizon
->>>>>>> c5c9cd11565322a56ad517cd39f020039013ad63
 
 ## Setup Instructions
 
@@ -15,8 +10,13 @@
    pip install -r requirements.txt
 
 4. Run:
-<<<<<<< HEAD
-   python app.py
-=======
-   python app.py
->>>>>>> c5c9cd11565322a56ad517cd39f020039013ad63
+
+git add .
+git commit -m "update"
+git push origin main
+
+
+git add .
+git commit -m "update"
+git pull origin main
+git push origin main

@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 from ultralytics import YOLO
 from utils.preprocessing import preprocess_image
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 # ===============================
 # LOAD MODELS
@@ -26,6 +28,15 @@ feature_extractor = tf.keras.Sequential([
     base_model,
     tf.keras.layers.GlobalAveragePooling2D()
 ])
+
+
+
+#new code added
+# ✅ Solar classifier
+solar_model = tf.keras.models.load_model(
+    "models/solar_classifier.keras",
+    compile=False
+)
 
 
 # ===============================
@@ -77,10 +88,10 @@ def run_inference(image_path):
     else:
         defect_code = max(defects, key=lambda x: x["area"])["class"]
 
-    # ✅ preprocess (ONLY ONCE)
+    # ✅ preprocess 
     img_tensor = preprocess_image(image_path)
 
-    # ✅ FIX SHAPE (important)
+    # ✅ FIX SHAPE 
     if len(img_tensor.shape) == 5:
         img_tensor = tf.squeeze(img_tensor, axis=1)
 
@@ -92,3 +103,21 @@ def run_inference(image_path):
     power = float(np.clip(power, 0.0, 1.0))
 
     return power, total_area, defect_code, defects
+
+
+
+def check_solar(image_path):
+    img = image.load_img(image_path, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
+
+    prob = solar_model.predict(img_array, verbose=0)[0][0]
+
+    if prob >= 0.90:
+        return "Solar",prob
+    elif prob <= 0.30:
+        return "Not Solar",prob
+    else:
+        return "Uncertain",prob
