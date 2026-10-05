@@ -11,12 +11,4 @@
 
 4. Run:
 
-git add .
-git commit -m "update"
-git push origin main
-
-
-git add .
-git commit -m "update"
-git pull origin main
-git push origin main
+   py app.py
